@@ -14,6 +14,7 @@
 6. [ตรวจสอบหลังติดตั้ง](#6-ตรวจสอบหลังติดตั้ง)
 7. [อัปเดตและถอนการติดตั้ง](#7-อัปเดตและถอนการติดตั้ง)
 8. [ข้อควรระวัง](#8-ข้อควรระวัง)
+9. [ส่วนเสริม (ไม่บังคับ): Claude Code mods](#9-ส่วนเสริม-ไม่บังคับ-claude-code-mods)
 
 ---
 
@@ -217,4 +218,52 @@ flowchart LR
 - **claude-mem มีสองส่วน** — `npx skills add` ติดตั้งแค่ไฟล์ skill ส่วน worker ต้องติดตั้งตาม[ขั้นที่ 4](#ขั้นที่-4--claude-mem-plugin-worker-สำหรับ-memory)
 - **SDLC เป็นของแต่ละโปรเจกต์** — `init` จะเขียน constitution ตามคำตอบของคุณ ห้ามคัดลอก `sdlc/` จากโปรเจกต์อื่นมาใช้ตรง ๆ
 - **impeccable ติดตั้ง hook ด้วย** — ตัวติดตั้งจะเพิ่ม hook ลงในโปรเจกต์ปัจจุบัน ถ้าใช้ Codex ร่วมด้วย ต้องอนุมัติ hook ใน `/hooks` อีกครั้ง
-- **เวอร์ชันที่ใช้ตอนทำเอกสาร** — `@warnyin/sdlc` 0.24.0 · `impeccable` 4.7.0 · `skills` 1.7.4 · `claude-mem` 14.0.1
+- **เวอร์ชันที่ใช้ตอนทำเอกสาร** — `@warnyin/sdlc` 0.24.0 · `impeccable` 4.7.0 · `skills` 1.7.4 · `claude-mem` 14.0.1 · `claude-code-mods` 0.3.0
+
+---
+
+## 9. ส่วนเสริม (ไม่บังคับ): Claude Code mods
+
+> **ข้ามส่วนนี้ได้** skills ในชุดหลักทำงานครบโดยไม่ต้องมี mods
+
+[hamzafer/claude-code-mods](https://github.com/hamzafer/claude-code-mods) เป็นชุด plugin ที่ทำให้เห็นว่า Claude Code กำลังทำอะไรอยู่ เช่น แถบข้อมูลเหนือช่องพิมพ์ pane แสดงสถานะ และ guard กันคำสั่งอันตราย เลือกติดตั้งเฉพาะตัวที่ต้องการได้ ต้องใช้ **Claude Code 2.1.287 ขึ้นไป** (ดูเวอร์ชันด้วย `claude --version`)
+
+### ติดตั้ง
+
+```bash
+npx claude-code-mods@latest            # เลือกจาก checklist แล้วกด Enter
+npx claude-code-mods@latest --project  # ติดตั้งเฉพาะโปรเจกต์นี้
+npx claude-code-mods@latest --pick context-bar,usage-meter,where-am-i,blast-radius
+```
+
+หลังติดตั้งให้ปิดแล้วเปิด Claude Code ใหม่ ถ้าอยากดูก่อนว่าจะรันคำสั่งอะไร ใส่ `--dry-run`
+
+หรือติดตั้งทีละตัวเอง
+
+```bash
+claude plugin marketplace add hamzafer/claude-code-mods
+claude plugin install context-bar@claude-code-mods
+```
+
+ถ้าใช้หลาย Claude profile ให้ตั้ง `CLAUDE_CONFIG_DIR` ก่อนรัน เพราะตัวติดตั้งจะแก้ profile ที่ `claude` ใช้อยู่ตอนนั้น
+
+### ตัวที่แนะนำ
+
+| Mod | ทำอะไร | คำสั่ง |
+|---|---|---|
+| `context-bar` | แสดง context window เป็นแถบเดียว แยกสีตามประเภท บอกจำนวน token และจุดที่จะ compact | `/context-bar` |
+| `usage-meter` | แสดงโควตา 5 ชั่วโมงและ 7 วัน เวลาที่เหลือก่อน reset และค่าใช้จ่ายของ session | — |
+| `where-am-i` | แสดงเป้าหมาย สิ่งที่กำลังทำ สิ่งที่รอคุณ และขั้นถัดไป | `/where` |
+| `blast-radius` | หยุดคำสั่ง `rm -r`, force push และ migration ไว้ก่อน แสดงว่าจะลบอะไร ถ้าไม่ตอบภายใน 60 วินาทีจะยกเลิกให้ | — |
+| `review-watch` | แสดงทีละบรรทัดว่า code review ไหนกำลังรันอยู่ ใช้คู่กับ `/code-review` และ `/sdlc:review` ได้ | — |
+| `mission-control` | pane แสดงแบบสดว่า subagent แต่ละตัวเรียก tool อะไรและแตะไฟล์ไหน ใช้คู่กับ `/sdlc:build` และ `/do` ได้ | `/mission` |
+| `agent-radar` | หนึ่งบรรทัดต่อ subagent หรือ background shell ที่กำลังรัน | `/radar` |
+
+ดูรายการทั้งหมดได้ที่ [docs/mods.md](https://github.com/hamzafer/claude-code-mods/blob/main/docs/mods.md)
+
+### ข้อควรระวังของ mods
+
+- `now-playing` ใช้ได้เฉพาะ macOS ส่วน `md-preview` ต้องมี Chrome และ terminal ที่แสดงรูปได้
+- กลุ่ม "My setup" (`glance`, `merge-gate`, `rulebook-guard`, `session-saver`) ผู้เขียนทำไว้ตามกติกาของตัวเอง เช่น `rulebook-guard` จะเขียน em dash ใหม่และถามก่อน `--amend` ไม่ควรติดตั้งโดยไม่ได้อ่านโค้ดก่อน
+- Community mods ในตารางท้าย README ของ repo ไม่ได้ดูแลโดยผู้เขียน ให้อ่านโค้ดก่อนติดตั้ง
+- เลิกใช้ mod ไหน ให้รัน `npx claude-code-mods@latest` แล้วเอาเครื่องหมายถูกออก การตั้งค่าของ mod นั้นจะยังเก็บไว้

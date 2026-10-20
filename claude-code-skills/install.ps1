@@ -44,4 +44,7 @@ Write-Host @'
        npx claude-mem install
 
   3) เปิด Claude Code ใหม่ แล้วรัน /impeccable init และ /sdlc:next
+
+  ไม่บังคับ: Claude Code mods (status bar, guard, pane)
+       npx claude-code-mods@latest
 '@
